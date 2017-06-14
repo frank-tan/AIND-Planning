@@ -127,8 +127,12 @@ class AirCargoProblem(Problem):
             e.g. 'FTTTFF'
         :return: list of Action objects
         """
-        # TODO implement
         possible_actions = []
+        fluent_state = decode_state(state, self.state_map)
+        for action in self.actions_list:
+            if contains_all_elements(fluent_state.pos, action.precond_pos) and \
+                            contains_all_elements(fluent_state, action.precond_neg):
+                possible_actions.append(action)
         return possible_actions
 
     def result(self, state: str, action: Action):
@@ -219,3 +223,11 @@ def air_cargo_p2() -> AirCargoProblem:
 def air_cargo_p3() -> AirCargoProblem:
     # TODO implement Problem 3 definition
     pass
+
+
+def contains_all_elements(array_a, array_b):
+    for element in array_b:
+        if element not in array_a:
+            return False
+
+    return True
