@@ -476,7 +476,20 @@ class PlanningGraph():
         :return: bool
         """
 
-        # TODO test for Competing Needs between nodes
+        # test for Competing Needs between nodes
+        a1_pre_pos_array = node_a1.action.precond_pos
+        a1_pre_neg_array = node_a1.action.precond_neg
+        a2_pre_pos_array = node_a2.action.precond_pos
+        a2_pre_neg_array = node_a2.action.precond_neg
+
+        for a1_pre_pos in a1_pre_pos_array:
+            if a1_pre_pos in a2_pre_neg_array:
+                return True
+
+        for a1_pre_neg in a1_pre_neg_array:
+            if a1_pre_neg in a2_pre_pos_array:
+                return True
+
         return False
 
     def update_s_mutex(self, nodeset: set):
