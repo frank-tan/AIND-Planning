@@ -436,7 +436,33 @@ class PlanningGraph():
         :param node_a2: PgNode_a
         :return: bool
         """
-        # TODO test for Interference between nodes
+        # test for Interference between nodes
+        a1_effect_add_array = node_a1.action.effect_add
+        a1_effect_remove_array = node_a1.action.effect_rem
+        a1_pre_pos_array = node_a1.action.precond_pos
+        a1_pre_neg_array = node_a1.action.precond_neg
+
+        a2_effect_add_array = node_a2.action.effect_add
+        a2_effect_remove_array = node_a2.action.effect_rem
+        a2_pre_pos_array = node_a2.action.precond_pos
+        a2_pre_neg_array = node_a2.action.precond_neg
+
+        for a1_add in a1_effect_add_array:
+            if a1_add in a2_pre_neg_array:
+                return True
+
+        for a1_remove in a1_effect_remove_array:
+            if a1_remove in a2_pre_pos_array:
+                return True
+
+        for a2_add in a2_effect_add_array:
+            if a2_add in a1_pre_neg_array:
+                return True
+
+        for a2_remove in a2_effect_remove_array:
+            if a2_remove in a1_pre_pos_array:
+                return True
+
         return False
 
     def competing_needs_mutex(self, node_a1: PgNode_a, node_a2: PgNode_a) -> bool:
