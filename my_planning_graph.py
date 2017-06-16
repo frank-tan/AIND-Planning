@@ -477,19 +477,10 @@ class PlanningGraph():
         """
 
         # test for Competing Needs between nodes
-        a1_pre_pos_array = node_a1.action.precond_pos
-        a1_pre_neg_array = node_a1.action.precond_neg
-        a2_pre_pos_array = node_a2.action.precond_pos
-        a2_pre_neg_array = node_a2.action.precond_neg
-
-        for a1_pre_pos in a1_pre_pos_array:
-            if a1_pre_pos in a2_pre_neg_array:
-                return True
-
-        for a1_pre_neg in a1_pre_neg_array:
-            if a1_pre_neg in a2_pre_pos_array:
-                return True
-
+        for pre_1 in node_a1.parents:
+            for pre_2 in node_a2.parents:
+                if pre_1.is_mutex(pre_2):
+                    return True
         return False
 
     def update_s_mutex(self, nodeset: set):
@@ -524,8 +515,8 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         """
-        # TODO test for negation between nodes
-        return False
+        # test for negation between nodes
+        return node_s1.symbol == node_s2.symbol and node_s1.is_pos != node_s2.is_pos
 
     def inconsistent_support_mutex(self, node_s1: PgNode_s, node_s2: PgNode_s):
         """
@@ -543,8 +534,14 @@ class PlanningGraph():
         :param node_s2: PgNode_s
         :return: bool
         """
-        # TODO test for Inconsistent Support between nodes
-        return False
+        # test for Inconsistent Support between nodes
+        actions_for_s1 = node_s1.parents
+        actions_for_s2 = node_s2.parents
+        for action_for_s1 in actions_for_s1:
+            for action_for_s2 in actions_for_s2:
+                if not action_for_s1.is_mutex(action_for_s2):
+                    return False
+        return True
 
     def h_levelsum(self) -> int:
         """The sum of the level costs of the individual goals (admissible if goals independent)
@@ -552,6 +549,16 @@ class PlanningGraph():
         :return: int
         """
         level_sum = 0
-        # TODO implement
         # for each goal in the problem, determine the level cost, then add them together
+        for goal in self.problem.goal:
+            goal_node = PgNode_s(goal, True)
+            found = False
+            for level in range(0, len(self.s_levels)):
+                if goal_node in self.s_levels[level]:
+                    found = True
+                    level_sum += level
+                    break
+            if found is False:
+                level_sum = float('inf')
+                break
         return level_sum
